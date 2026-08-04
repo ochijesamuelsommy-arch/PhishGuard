@@ -16,6 +16,9 @@ def check_url(url: str):
             timeout=10
         )
 
+        print("POST STATUS:", response.status_code)
+        print("POST RESPONSE:", response.text)
+
         response.raise_for_status()
 
         analysis_id = response.json()["data"]["id"]
@@ -29,6 +32,9 @@ def check_url(url: str):
                 headers=headers,
                 timeout=10
             )
+
+            print("GET STATUS:", result.status_code)
+            print("GET RESPONSE:", result.text)
 
             result.raise_for_status()
 
@@ -60,12 +66,10 @@ def check_url(url: str):
             status = "DANGEROUS"
             risk_score = 100
             message = "This URL has been flagged as malicious."
-
         elif suspicious > 0:
             status = "SUSPICIOUS"
             risk_score = 70
             message = "This URL looks suspicious."
-
         else:
             status = "SAFE"
             risk_score = 0
