@@ -1,4 +1,4 @@
-const API_BASE = "http://127.0.0.1:8000";
+const API_BASE = "https://phishguard-0qli.onrender.com";
 
 async function fetchData(endpoint, url, errorMessage) {
   const response = await fetch(
