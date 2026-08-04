@@ -1,10 +1,13 @@
 from app.services.validator import is_valid_url
 from app.services.domain_info import get_domain_info
+from app.services.ssl_info import get_ssl_info
+from app.services.whois_info import get_whois_info
+from app.services.ai_analysis import generate_ai_analysis
 
 
 def scan_url(url: str):
     if not is_valid_url(url):
-        return {
+        result = {
             "url": url,
             "status": "INVALID URL",
             "overall_risk_score": 0,
@@ -15,8 +18,13 @@ def scan_url(url: str):
                 "status": "Invalid URL",
                 "reasons": ["Please enter a valid URL."]
             },
-            "domain_info": None
+            "domain_info": None,
+            "ssl_info": None,
+            "whois_info": None
         }
+
+        result["ai_analysis"] = generate_ai_analysis(result)
+        return result
 
     score = 100
     reasons = []
@@ -58,7 +66,18 @@ def scan_url(url: str):
         confidence = "Medium"
         message = "Exercise caution before visiting this website."
 
-    return {
+    domain_info = get_domain_info(url)
+
+    ssl_info = None
+    whois_info = None
+
+    if domain_info and domain_info.get("hostname"):
+        hostname = domain_info["hostname"]
+
+        ssl_info = get_ssl_info(hostname)
+        whois_info = get_whois_info(hostname)
+
+    result = {
         "url": url,
         "status": final_status,
         "overall_risk_score": 100 - local_score,
@@ -69,5 +88,11 @@ def scan_url(url: str):
             "status": final_status,
             "reasons": reasons
         },
-        "domain_info": get_domain_info(url)
+        "domain_info": domain_info,
+        "ssl_info": ssl_info,
+        "whois_info": whois_info
     }
+
+    result["ai_analysis"] = generate_ai_analysis(result)
+
+    return result
